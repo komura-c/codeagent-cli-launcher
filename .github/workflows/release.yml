@@ -1,0 +1,44 @@
+name: Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Tag name to release (e.g. v1.0.0)"
+        required: true
+        type: string
+
+permissions:
+  contents: write
+
+jobs:
+  build-and-release:
+    name: Build zip and publish GitHub Release
+    runs-on: ubuntu-latest
+    env:
+      TAG: ${{ inputs.tag }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      - run: pnpm typecheck
+
+      - run: pnpm test:run
+
+      - run: pnpm package
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ env.TAG }}
+          name: ${{ env.TAG }}
+          generate_release_notes: true
+          files: releases/codeagent-cli-launcher-*.zip
