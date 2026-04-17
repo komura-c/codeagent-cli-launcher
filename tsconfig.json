@@ -14,7 +14,7 @@
     "allowImportingTsExtensions": false,
     "noEmit": true,
     "lib": ["ES2022", "DOM", "DOM.Iterable"],
-    "types": ["chrome", "vitest/globals"]
+    "types": ["chrome", "node", "vitest/globals"]
   },
   "include": ["src/**/*", "tests/**/*"]
 }

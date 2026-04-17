@@ -21,6 +21,7 @@
     "preview": "vite preview",
     "test": "vitest",
     "test:run": "vitest run",
+    "test:coverage": "vitest run --coverage",
     "typecheck": "tsc --noEmit",
     "package": "pnpm build && node scripts/zip.mjs"
   },
@@ -35,6 +36,8 @@
   "devDependencies": {
     "@crxjs/vite-plugin": "^2.4.0",
     "@types/chrome": "^0.1.40",
+    "@types/node": "^25.6.0",
+    "@vitest/coverage-v8": "^4.1.4",
     "happy-dom": "^20.9.0",
     "typescript": "^6.0.2",
     "vite": "^8.0.8",

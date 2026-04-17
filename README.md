@@ -81,6 +81,7 @@ pnpm dev          # HMR 付き開発ビルド（dist/ に watch 出力）
 pnpm build        # 本番ビルド
 pnpm test         # vitest watch
 pnpm test:run     # CI ワンショット
+pnpm test:coverage # カバレッジ付きで実行
 pnpm typecheck    # tsc --noEmit
 pnpm package      # build 後に zip を生成
 ```
