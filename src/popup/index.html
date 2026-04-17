@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="stylesheet" href="./popup.css" />
+  </head>
+  <body>
+    <div class="container">
+      <div class="header-row">
+        <h1>CodeAgent CLI Launcher</h1>
+        <button id="settings-toggle" class="btn-icon" title="設定">
+          &#9881;
+        </button>
+      </div>
+
+      <div id="not-github" class="message hidden">
+        <p>GitHubページで使用してください</p>
+      </div>
+
+      <div id="github-content" class="hidden">
+        <div class="info-section">
+          <div class="label">リポジトリ</div>
+          <div id="repo-name" class="value"></div>
+        </div>
+
+        <div class="info-section" id="issue-section">
+          <div class="label">Issue / PR</div>
+          <div id="issue-info" class="value"></div>
+        </div>
+
+        <div class="section-title">ローカルパス設定</div>
+        <div class="input-group">
+          <input type="text" id="base-path" placeholder="~/repos" />
+          <button id="save-path" class="btn-small">保存</button>
+        </div>
+
+        <div id="command-select-section">
+          <div class="section-title">コマンド種別</div>
+          <select id="command-select"></select>
+        </div>
+
+        <div class="section-title">コマンド</div>
+
+        <div class="command-block">
+          <div class="command-label">Claude Code</div>
+          <div class="command-row">
+            <code id="claude-cmd" class="command"></code>
+            <button class="copy-btn" data-target="claude-cmd" title="コピー">
+              &#128203;
+            </button>
+          </div>
+        </div>
+
+        <div class="command-block">
+          <div class="command-label">Codex</div>
+          <div class="command-row">
+            <code id="codex-cmd" class="command"></code>
+            <button class="copy-btn" data-target="codex-cmd" title="コピー">
+              &#128203;
+            </button>
+          </div>
+        </div>
+
+        <div id="copy-feedback" class="feedback hidden">コピーしました!</div>
+
+        <div id="settings-panel" class="hidden">
+          <div class="section-title">コマンド管理</div>
+          <div id="command-list"></div>
+
+          <div class="import-export-actions">
+            <button id="export-commands" class="btn-small">エクスポート</button>
+            <button id="import-commands-btn" class="btn-small">
+              インポート
+            </button>
+            <input
+              type="file"
+              id="import-commands"
+              accept=".md"
+              class="hidden"
+            />
+          </div>
+
+          <div class="add-command-form">
+            <div class="section-title">コマンド追加</div>
+            <input
+              type="text"
+              id="add-name"
+              class="form-input"
+              placeholder="コマンド名"
+            />
+            <textarea
+              id="add-prompt"
+              class="form-input"
+              rows="2"
+              placeholder="プロンプト"
+            ></textarea>
+            <div class="section-title">対応ページタイプ</div>
+            <div id="add-types" class="type-checkboxes"></div>
+            <div class="form-actions">
+              <button id="add-submit" class="btn-small">追加</button>
+              <button id="cancel-edit" class="btn-small hidden">
+                キャンセル
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <script type="module" src="./popup.ts"></script>
+  </body>
+</html>

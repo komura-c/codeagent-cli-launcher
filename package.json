@@ -1,0 +1,43 @@
+{
+  "name": "codeagent-cli-launcher",
+  "private": true,
+  "version": "1.0.0",
+  "description": "GitHubページからClaude Code/Codexの起動コマンドをワンクリックで取得",
+  "type": "module",
+  "author": "komura-c",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/komura-c/codeagent-cli-launcher.git"
+  },
+  "bugs": {
+    "url": "https://github.com/komura-c/codeagent-cli-launcher/issues"
+  },
+  "homepage": "https://github.com/komura-c/codeagent-cli-launcher#readme",
+  "scripts": {
+    "preinstall": "npx only-allow pnpm",
+    "dev": "vite",
+    "build": "tsc --noEmit && vite build",
+    "preview": "vite preview",
+    "test": "vitest",
+    "test:run": "vitest run",
+    "typecheck": "tsc --noEmit",
+    "package": "pnpm build && node scripts/zip.mjs"
+  },
+  "packageManager": "pnpm@10.33.0",
+  "devEngines": {
+    "packageManager": {
+      "name": "pnpm",
+      "version": ">=10.16.0",
+      "onFail": "error"
+    }
+  },
+  "devDependencies": {
+    "@crxjs/vite-plugin": "^2.4.0",
+    "@types/chrome": "^0.1.40",
+    "happy-dom": "^20.9.0",
+    "typescript": "^6.0.2",
+    "vite": "^8.0.8",
+    "vitest": "^4.1.4"
+  }
+}

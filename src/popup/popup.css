@@ -1,0 +1,332 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family:
+    -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+  font-size: 13px;
+  color: #e6edf3;
+  background: #0d1117;
+  width: 420px;
+}
+
+.container {
+  padding: 16px;
+}
+
+.header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid #30363d;
+  padding-bottom: 8px;
+  margin-bottom: 12px;
+}
+
+.header-row h1 {
+  font-size: 16px;
+  font-weight: 600;
+  color: #f0f6fc;
+  margin-bottom: 0;
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.btn-icon {
+  background: none;
+  border: 1px solid #30363d;
+  border-radius: 6px;
+  color: #8b949e;
+  font-size: 16px;
+  cursor: pointer;
+  padding: 4px 8px;
+  line-height: 1;
+}
+
+.btn-icon:hover {
+  color: #e6edf3;
+  background: #21262d;
+}
+
+h1 {
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: 12px;
+  color: #f0f6fc;
+  border-bottom: 1px solid #30363d;
+  padding-bottom: 8px;
+}
+
+.hidden {
+  display: none !important;
+}
+
+.message p {
+  color: #8b949e;
+  text-align: center;
+  padding: 24px 0;
+}
+
+.info-section {
+  margin-bottom: 8px;
+}
+
+.label {
+  font-size: 11px;
+  color: #8b949e;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 2px;
+}
+
+.value {
+  font-weight: 600;
+  color: #58a6ff;
+}
+
+.section-title {
+  font-size: 12px;
+  font-weight: 600;
+  color: #8b949e;
+  margin-top: 12px;
+  margin-bottom: 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.input-group {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+
+.input-group input {
+  flex: 1;
+  padding: 6px 8px;
+  background: #161b22;
+  border: 1px solid #30363d;
+  border-radius: 6px;
+  color: #e6edf3;
+  font-size: 12px;
+  font-family: "SF Mono", "Fira Code", monospace;
+}
+
+.input-group input:focus {
+  outline: none;
+  border-color: #58a6ff;
+}
+
+.btn-small {
+  padding: 6px 10px;
+  background: #21262d;
+  border: 1px solid #30363d;
+  border-radius: 6px;
+  color: #e6edf3;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.btn-small:hover {
+  background: #30363d;
+}
+
+#command-select {
+  width: 100%;
+  padding: 6px 8px;
+  background: #161b22;
+  border: 1px solid #30363d;
+  border-radius: 6px;
+  color: #e6edf3;
+  font-size: 12px;
+  margin-bottom: 4px;
+}
+
+#command-select:focus {
+  outline: none;
+  border-color: #58a6ff;
+}
+
+.command-block {
+  margin-bottom: 8px;
+}
+
+.command-label {
+  font-size: 11px;
+  color: #8b949e;
+  margin-bottom: 3px;
+}
+
+.command-row {
+  display: flex;
+  align-items: stretch;
+  gap: 4px;
+}
+
+.command {
+  flex: 1;
+  display: block;
+  padding: 8px 10px;
+  background: #161b22;
+  border: 1px solid #30363d;
+  border-radius: 6px;
+  font-family: "SF Mono", "Fira Code", monospace;
+  font-size: 11px;
+  color: #7ee787;
+  word-break: break-all;
+  line-height: 1.4;
+}
+
+.copy-btn {
+  padding: 8px 14px;
+  background: #238636;
+  border: 1px solid #2ea043;
+  border-radius: 6px;
+  color: #fff;
+  cursor: pointer;
+  font-size: 14px;
+  flex-shrink: 0;
+}
+
+.copy-btn:hover {
+  background: #2ea043;
+}
+
+.copy-btn:active {
+  background: #238636;
+  transform: scale(0.95);
+}
+
+.feedback {
+  margin-top: 6px;
+  text-align: center;
+  color: #7ee787;
+  font-size: 12px;
+  font-weight: 600;
+  animation: fadeIn 0.2s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Settings panel */
+#settings-panel {
+  margin-top: 12px;
+  border-top: 1px solid #30363d;
+  padding-top: 8px;
+}
+
+.cmd-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 8px;
+  background: #161b22;
+  border: 1px solid #30363d;
+  border-radius: 6px;
+  margin-bottom: 4px;
+}
+
+.cmd-item-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  flex: 1;
+}
+
+.cmd-item-name {
+  font-weight: 600;
+  font-size: 12px;
+  color: #e6edf3;
+}
+
+.cmd-item-types {
+  font-size: 10px;
+  color: #8b949e;
+}
+
+.cmd-item-actions {
+  display: flex;
+  gap: 4px;
+  flex-shrink: 0;
+  margin-left: 8px;
+}
+
+.btn-danger {
+  color: #f85149;
+  border-color: #f8514966;
+}
+
+.btn-danger:hover {
+  background: #da36332a;
+  border-color: #f85149;
+}
+
+/* Add command form */
+.add-command-form {
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid #30363d;
+}
+
+.form-input {
+  width: 100%;
+  padding: 6px 8px;
+  background: #161b22;
+  border: 1px solid #30363d;
+  border-radius: 6px;
+  color: #e6edf3;
+  font-size: 12px;
+  margin-bottom: 6px;
+  font-family: inherit;
+  resize: vertical;
+}
+
+.form-input:focus {
+  outline: none;
+  border-color: #58a6ff;
+}
+
+.type-checkboxes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.type-checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  color: #8b949e;
+  cursor: pointer;
+}
+
+.type-checkbox-label input[type="checkbox"] {
+  accent-color: #58a6ff;
+}
+
+.form-actions {
+  display: flex;
+  gap: 6px;
+}
+
+.import-export-actions {
+  display: flex;
+  gap: 6px;
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid #30363d;
+}
