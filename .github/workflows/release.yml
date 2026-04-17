@@ -35,16 +35,10 @@ jobs:
 
       - run: pnpm package
 
-      - name: Locate zip
-        id: zip
-        run: |
-          ZIP_PATH="$(ls releases/codeagent-cli-launcher-v*.zip | head -n1)"
-          echo "path=$ZIP_PATH" >> "$GITHUB_OUTPUT"
-
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ env.TAG }}
           name: ${{ env.TAG }}
           generate_release_notes: true
-          files: ${{ steps.zip.outputs.path }}
+          files: releases/codeagent-cli-launcher-*.zip
