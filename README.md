@@ -1,12 +1,13 @@
 # CodeAgent CLI Launcher - Chrome Extension
 
-GitHub のページ（リポジトリ / Issue / PR）を開くだけで、**Claude Code** や **Codex** をローカルリポジトリ上で起動するワンライナーをワンクリックでクリップボードにコピーできる Chrome 拡張です。
+GitHub のページ（リポジトリ / Issue / PR）や Jira (Atlassian Cloud) のチケットページを開くだけで、**Claude Code** や **Codex** をローカルリポジトリ上で起動するワンライナーをワンクリックでクリップボードにコピーできる Chrome 拡張です。
 
 ## Features
 
 - GitHub URL を自動解析（リポジトリ / Issue / PR を自動判別）
+- Jira (Atlassian Cloud) チケットページにも対応（リポジトリ名は手動入力、プロジェクトキー単位で保存）
 - `claude` / `codex` の起動コマンドを生成
-- Issue / PR ではタイトル付きプロンプトで起動
+- Issue / PR / Jira チケットではタイトル付きプロンプトで起動
 - ワンクリックでクリップボードにコピー
 - コマンドの追加・編集・削除（built-in コマンドも編集可）
 - Markdown でのエクスポート / インポート（チーム共有向け）
@@ -49,6 +50,11 @@ zip を展開したディレクトリを同様に読み込んでください。
 | `github.com/{owner}/{repo}` | リポジトリルートで `claude` / `codex` を起動 |
 | `github.com/{owner}/{repo}/issues/{n}` | Issue 向けプロンプト付きで起動 |
 | `github.com/{owner}/{repo}/pull/{n}` | PR 向けプロンプト付きで起動 |
+| `{tenant}.atlassian.net/browse/{KEY}-{n}` | Jira チケット向けプロンプト付きで起動（リポジトリ名は手動入力） |
+
+### Jira (Atlassian Cloud) について
+
+Jira チケットはローカルリポジトリと直接結びついていないため、popup でリポジトリ名を手動入力します。入力値はプロジェクトキー単位 (`PROJ` → `widget` など) で `chrome.storage.local` に保存され、同じプロジェクトのチケットを次回開いたときに自動で復元されます。
 
 ## Default Commands
 
@@ -59,6 +65,7 @@ zip を展開したディレクトリを同様に読み込んでください。
 | PRレビュー | PRの内容を確認して、レビューしてください。 | PR |
 | レビューコメント修正 | PRのレビューコメントを確認して、レビュー内容を修正してください。 | PR |
 | Issue対応 | Issueの内容を確認して、対応してください。 | Issue |
+| Jiraチケット対応 | Jiraチケットの内容を確認して、対応してください。 | Jira |
 
 ## Sharing Commands
 

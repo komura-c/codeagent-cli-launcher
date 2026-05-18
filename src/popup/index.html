@@ -13,19 +13,33 @@
         </button>
       </div>
 
-      <div id="not-github" class="message hidden">
-        <p>GitHubページで使用してください</p>
+      <div id="not-supported" class="message hidden">
+        <p>GitHub または Jira (Atlassian Cloud) のページで使用してください</p>
       </div>
 
-      <div id="github-content" class="hidden">
-        <div class="info-section">
-          <div class="label">リポジトリ</div>
-          <div id="repo-name" class="value"></div>
+      <div id="page-content" class="hidden">
+        <div id="github-section" class="hidden">
+          <div class="info-section">
+            <div class="label">リポジトリ</div>
+            <div id="repo-name" class="value"></div>
+          </div>
+
+          <div class="info-section" id="issue-section">
+            <div class="label">Issue / PR</div>
+            <div id="issue-info" class="value"></div>
+          </div>
         </div>
 
-        <div class="info-section" id="issue-section">
-          <div class="label">Issue / PR</div>
-          <div id="issue-info" class="value"></div>
+        <div id="jira-section" class="hidden">
+          <div class="info-section">
+            <div class="label">Jiraチケット</div>
+            <div id="jira-ticket-info" class="value"></div>
+          </div>
+
+          <div class="section-title">リポジトリ名</div>
+          <div class="input-group">
+            <input type="text" id="jira-repo-name" placeholder="repo-name" />
+          </div>
         </div>
 
         <div class="section-title">ローカルパス設定</div>

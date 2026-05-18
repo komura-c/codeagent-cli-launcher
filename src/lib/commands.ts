@@ -2,6 +2,7 @@ import type { Command } from "./types";
 
 export const STORAGE_KEY = "codeagent_cli_launcher_base_path";
 export const COMMANDS_KEY = "codeagent_cli_launcher_commands";
+export const JIRA_REPO_MAP_KEY = "codeagent_cli_launcher_jira_repo_map";
 export const DEFAULT_BASE_PATH = "~/repos";
 
 type DefaultCommandSeed = Omit<Command, "id">;
@@ -21,6 +22,11 @@ const DEFAULT_COMMAND_SEEDS: DefaultCommandSeed[] = [
     name: "Issue対応",
     prompt: "Issueの内容を確認して、対応してください。",
     types: ["issue"],
+  },
+  {
+    name: "Jiraチケット対応",
+    prompt: "Jiraチケットの内容を確認して、対応してください。",
+    types: ["jira"],
   },
 ];
 
@@ -53,4 +59,26 @@ export async function loadBasePath(): Promise<string> {
 
 export async function saveBasePath(basePath: string): Promise<void> {
   await chrome.storage.local.set({ [STORAGE_KEY]: basePath });
+}
+
+export async function loadJiraRepoMap(): Promise<Record<string, string>> {
+  const stored = await chrome.storage.local.get(JIRA_REPO_MAP_KEY);
+  const value = stored[JIRA_REPO_MAP_KEY] as
+    | Record<string, string>
+    | undefined;
+  return value ?? {};
+}
+
+export async function saveJiraRepo(
+  projectKey: string,
+  repoName: string,
+): Promise<void> {
+  const map = await loadJiraRepoMap();
+  const trimmed = repoName.trim();
+  if (trimmed === "") {
+    delete map[projectKey];
+  } else {
+    map[projectKey] = trimmed;
+  }
+  await chrome.storage.local.set({ [JIRA_REPO_MAP_KEY]: map });
 }

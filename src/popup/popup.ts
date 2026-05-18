@@ -2,21 +2,38 @@ import {
   DEFAULT_BASE_PATH,
   loadBasePath,
   loadCommands,
+  loadJiraRepoMap,
   saveBasePath,
   saveCommands,
+  saveJiraRepo,
 } from "../lib/commands";
 import { buildCommands, parseGitHubUrl, extractGitHubTitle } from "../lib/github";
-import type { Command, CommandType, GitHubInfo } from "../lib/types";
+import {
+  buildJiraCommands,
+  extractJiraTitle,
+  parseJiraUrl,
+} from "../lib/jira";
+import type {
+  Command,
+  CommandType,
+  GitHubInfo,
+  JiraInfo,
+} from "../lib/types";
 import {
   commandsToMarkdown,
   parseMultiCommandMarkdown,
 } from "../lib/markdown";
 import { clear, el } from "../lib/dom";
 
+type PageKind = "issue" | "pr" | "repo" | "jira";
+
 const ALL_TYPES: ReadonlyArray<{ value: CommandType; label: string }> = [
   { value: "issue", label: "Issue" },
   { value: "pr", label: "PR" },
+  { value: "jira", label: "Jira" },
 ];
+
+const JIRA_EMPTY_REPO_PLACEHOLDER = "リポジトリ名を入力してください";
 
 function byId<T extends HTMLElement = HTMLElement>(id: string): T {
   const node = document.getElementById(id);
@@ -37,7 +54,7 @@ function showFeedback(message: string): void {
 
 function populateCommandSelect(
   commands: Command[],
-  pageType: GitHubInfo["type"],
+  pageType: PageKind,
 ): void {
   const select = byId<HTMLSelectElement>("command-select");
   clear(select);
@@ -130,7 +147,9 @@ function getCheckedTypes(container: HTMLElement): CommandType[] {
     ),
   )
     .map((cb) => cb.value)
-    .filter((v): v is CommandType => v === "issue" || v === "pr");
+    .filter(
+      (v): v is CommandType => v === "issue" || v === "pr" || v === "jira",
+    );
 }
 
 function exportCommandsToFile(commands: Command[]): void {
@@ -154,10 +173,28 @@ function setIssueInfo(info: GitHubInfo, pageTitle: string): void {
     section.classList.add("hidden");
     return;
   }
+  section.classList.remove("hidden");
   const label = info.type === "issue" ? "Issue" : "PR";
   const title = extractGitHubTitle(pageTitle, info.type);
   const suffix = title && title !== pageTitle ? ` - ${title}` : "";
   byId("issue-info").textContent = `${label} #${info.issueNumber}${suffix}`;
+}
+
+function setJiraInfo(info: JiraInfo, pageTitle: string): void {
+  const title = extractJiraTitle(
+    pageTitle,
+    info.projectKey,
+    info.ticketNumber,
+  );
+  const suffix = title ? ` - ${title}` : "";
+  byId("jira-ticket-info").textContent =
+    `${info.projectKey}-${info.ticketNumber}${suffix}`;
+}
+
+function setCopyButtonsDisabled(disabled: boolean): void {
+  document.querySelectorAll<HTMLButtonElement>(".copy-btn").forEach((btn) => {
+    btn.disabled = disabled;
+  });
 }
 
 async function init(): Promise<void> {
@@ -165,16 +202,30 @@ async function init(): Promise<void> {
   const url = tab?.url ?? "";
   const pageTitle = tab?.title ?? "";
 
-  const info = parseGitHubUrl(url);
+  const ghInfo = parseGitHubUrl(url);
+  const jiraInfo = ghInfo ? null : parseJiraUrl(url);
 
-  if (!info) {
-    byId("not-github").classList.remove("hidden");
+  if (!ghInfo && !jiraInfo) {
+    byId("not-supported").classList.remove("hidden");
     return;
   }
 
-  byId("github-content").classList.remove("hidden");
-  byId("repo-name").textContent = `${info.owner}/${info.repo}`;
-  setIssueInfo(info, pageTitle);
+  byId("page-content").classList.remove("hidden");
+
+  const pageKind: PageKind = ghInfo ? ghInfo.type : "jira";
+
+  let jiraRepoName = "";
+  if (ghInfo) {
+    byId("github-section").classList.remove("hidden");
+    byId("repo-name").textContent = `${ghInfo.owner}/${ghInfo.repo}`;
+    setIssueInfo(ghInfo, pageTitle);
+  } else if (jiraInfo) {
+    byId("jira-section").classList.remove("hidden");
+    setJiraInfo(jiraInfo, pageTitle);
+    const map = await loadJiraRepoMap();
+    jiraRepoName = map[jiraInfo.projectKey] ?? "";
+    byId<HTMLInputElement>("jira-repo-name").value = jiraRepoName;
+  }
 
   const basePath = await loadBasePath();
   byId<HTMLInputElement>("base-path").value = basePath;
@@ -186,9 +237,32 @@ async function init(): Promise<void> {
     const bp =
       byId<HTMLInputElement>("base-path").value.trim() || DEFAULT_BASE_PATH;
     const promptTemplate = getSelectedPromptTemplate(commands);
-    const cmds = buildCommands(info!, bp, pageTitle, promptTemplate);
+
+    if (jiraInfo) {
+      const repoName = byId<HTMLInputElement>("jira-repo-name").value.trim();
+      if (repoName === "") {
+        byId("claude-cmd").textContent = JIRA_EMPTY_REPO_PLACEHOLDER;
+        byId("codex-cmd").textContent = JIRA_EMPTY_REPO_PLACEHOLDER;
+        setCopyButtonsDisabled(true);
+        return;
+      }
+      const cmds = buildJiraCommands(
+        jiraInfo,
+        bp,
+        repoName,
+        pageTitle,
+        promptTemplate,
+      );
+      byId("claude-cmd").textContent = cmds.claude;
+      byId("codex-cmd").textContent = cmds.codex;
+      setCopyButtonsDisabled(false);
+      return;
+    }
+
+    const cmds = buildCommands(ghInfo!, bp, pageTitle, promptTemplate);
     byId("claude-cmd").textContent = cmds.claude;
     byId("codex-cmd").textContent = cmds.codex;
+    setCopyButtonsDisabled(false);
   }
 
   function refreshSettingsPanel(): void {
@@ -198,7 +272,7 @@ async function init(): Promise<void> {
   async function applyCommands(next: Command[]): Promise<void> {
     commands = next;
     await saveCommands(commands);
-    populateCommandSelect(commands, info!.type);
+    populateCommandSelect(commands, pageKind);
     updateCommandDisplay();
     refreshSettingsPanel();
   }
@@ -228,7 +302,7 @@ async function init(): Promise<void> {
     await applyCommands(commands.filter((c) => c.id !== id));
   }
 
-  populateCommandSelect(commands, info.type);
+  populateCommandSelect(commands, pageKind);
   updateCommandDisplay();
 
   const addTypesContainer = byId("add-types");
@@ -245,8 +319,17 @@ async function init(): Promise<void> {
 
   byId("base-path").addEventListener("input", updateCommandDisplay);
 
+  if (jiraInfo) {
+    const jiraRepoInput = byId<HTMLInputElement>("jira-repo-name");
+    jiraRepoInput.addEventListener("input", updateCommandDisplay);
+    jiraRepoInput.addEventListener("blur", async () => {
+      await saveJiraRepo(jiraInfo.projectKey, jiraRepoInput.value);
+    });
+  }
+
   document.querySelectorAll<HTMLButtonElement>(".copy-btn").forEach((btn) => {
     btn.addEventListener("click", async () => {
+      if (btn.disabled) return;
       const targetId = btn.dataset["target"];
       if (!targetId) return;
       const text = byId(targetId).textContent ?? "";

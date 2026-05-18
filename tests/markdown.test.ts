@@ -205,4 +205,36 @@ describe("parseMultiCommandMarkdown", () => {
     expect(parsed[0]?.types).toEqual(original.types);
     expect(parsed[0]?.prompt).toBe(original.prompt);
   });
+
+  it("accepts jira type", () => {
+    const text = "---\nname: Jira\ntypes:\n  - jira\n---\nPrompt";
+    const result = parseMultiCommandMarkdown(text);
+    expect(result).toHaveLength(1);
+    expect(result[0]?.types).toEqual(["jira"]);
+  });
+
+  it("round-trips a jira-typed command", () => {
+    const original: Command = {
+      id: "x",
+      name: "Jiraチケット対応",
+      types: ["jira"],
+      prompt: "Jiraチケットの内容を確認してください。",
+    };
+    const md = commandToMarkdown(original);
+    const parsed = parseMultiCommandMarkdown(md);
+    expect(parsed).toHaveLength(1);
+    expect(parsed[0]?.types).toEqual(["jira"]);
+    expect(parsed[0]?.prompt).toBe(original.prompt);
+  });
+
+  it("parses a multi-command file mixing pr, issue, jira", () => {
+    const cmds: Command[] = [
+      { id: "1", name: "A", types: ["pr"], prompt: "PA" },
+      { id: "2", name: "B", types: ["issue"], prompt: "PB" },
+      { id: "3", name: "C", types: ["jira"], prompt: "PC" },
+    ];
+    const md = commandsToMarkdown(cmds);
+    const parsed = parseMultiCommandMarkdown(md);
+    expect(parsed.map((c) => c.types)).toEqual([["pr"], ["issue"], ["jira"]]);
+  });
 });

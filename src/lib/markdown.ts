@@ -65,7 +65,8 @@ export function parseMultiCommandMarkdown(text: string): Command[] {
 
     const rawTypes = Array.isArray(typesValue) ? typesValue : [typesValue];
     const types = rawTypes.filter(
-      (t): t is CommandType => t === "issue" || t === "pr",
+      (t): t is CommandType =>
+        t === "issue" || t === "pr" || t === "jira",
     );
     if (types.length === 0) continue;
 

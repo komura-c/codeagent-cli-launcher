@@ -1,5 +1,5 @@
 import { shellEscape, shellEscapePath } from "./shell";
-import type { GitHubInfo, GitHubInfoType } from "./types";
+import type { GitHubInfo, GitHubInfoType, LaunchCommands } from "./types";
 
 export function parseGitHubUrl(url: string): GitHubInfo | null {
   try {
@@ -65,11 +65,6 @@ export function buildPrompt(
   const label = info.type === "issue" ? "Issue" : "PR";
   const header = `GitHub ${label} #${info.issueNumber}${title ? ": " + title : ""}`;
   return `${header} ${promptTemplate}`;
-}
-
-export interface LaunchCommands {
-  claude: string;
-  codex: string;
 }
 
 export function buildCommands(

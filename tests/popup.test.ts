@@ -1,7 +1,11 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
-import { COMMANDS_KEY, STORAGE_KEY } from "../src/lib/commands";
+import {
+  COMMANDS_KEY,
+  JIRA_REPO_MAP_KEY,
+  STORAGE_KEY,
+} from "../src/lib/commands";
 
 type Store = Record<string, unknown>;
 
@@ -75,14 +79,14 @@ describe("popup integration", () => {
     }
   });
 
-  it("shows not-github message for non-GitHub URLs", async () => {
+  it("shows not-supported message for non-GitHub non-Jira URLs", async () => {
     installChrome({}, { url: "https://example.com", title: "x" });
     await runPopupInit();
 
-    const notGithub = document.getElementById("not-github")!;
-    const ghContent = document.getElementById("github-content")!;
-    expect(notGithub.classList.contains("hidden")).toBe(false);
-    expect(ghContent.classList.contains("hidden")).toBe(true);
+    const notSupported = document.getElementById("not-supported")!;
+    const pageContent = document.getElementById("page-content")!;
+    expect(notSupported.classList.contains("hidden")).toBe(false);
+    expect(pageContent.classList.contains("hidden")).toBe(true);
   });
 
   it("renders repo-level claude/codex commands using stored base path", async () => {
@@ -137,6 +141,99 @@ describe("popup integration", () => {
     expect(
       document.getElementById("copy-feedback")!.classList.contains("hidden"),
     ).toBe(false);
+  });
+
+  it("renders Jira ticket info and commands when repo name is stored", async () => {
+    installChrome(
+      {
+        [STORAGE_KEY]: "~/repos",
+        [JIRA_REPO_MAP_KEY]: { PROJ: "myrepo" },
+      },
+      {
+        url: "https://acme.atlassian.net/browse/PROJ-7",
+        title: "[PROJ-7] Add login - Jira",
+      },
+    );
+    await runPopupInit();
+
+    expect(
+      document.getElementById("jira-section")!.classList.contains("hidden"),
+    ).toBe(false);
+    expect(
+      document.getElementById("github-section")!.classList.contains("hidden"),
+    ).toBe(true);
+    expect(document.getElementById("jira-ticket-info")!.textContent).toBe(
+      "PROJ-7 - Add login",
+    );
+    expect(
+      (document.getElementById("jira-repo-name") as HTMLInputElement).value,
+    ).toBe("myrepo");
+
+    const claude = document.getElementById("claude-cmd")!.textContent ?? "";
+    expect(claude).toContain("cd ~/repos/myrepo && claude");
+    expect(claude).toContain("Jira PROJ-7: Add login");
+  });
+
+  it("disables copy buttons and shows placeholder when Jira repo name is empty", async () => {
+    installChrome(
+      {},
+      {
+        url: "https://acme.atlassian.net/browse/PROJ-7",
+        title: "[PROJ-7] Foo - Jira",
+      },
+    );
+    await runPopupInit();
+
+    expect(document.getElementById("claude-cmd")!.textContent).toBe(
+      "リポジトリ名を入力してください",
+    );
+    const copyBtns = document.querySelectorAll<HTMLButtonElement>(".copy-btn");
+    copyBtns.forEach((btn) => expect(btn.disabled).toBe(true));
+  });
+
+  it("persists Jira repo name to per-project map on blur", async () => {
+    const store = installChrome(
+      {},
+      {
+        url: "https://acme.atlassian.net/browse/PROJ-7",
+        title: "[PROJ-7] Foo - Jira",
+      },
+    );
+    await runPopupInit();
+
+    const input = document.getElementById("jira-repo-name") as HTMLInputElement;
+    input.value = "widget";
+    input.dispatchEvent(new Event("input"));
+    input.dispatchEvent(new Event("blur"));
+    await new Promise((r) => setTimeout(r, 0));
+
+    expect(store[JIRA_REPO_MAP_KEY]).toEqual({ PROJ: "widget" });
+    expect(document.getElementById("claude-cmd")!.textContent).toContain(
+      "cd ~/repos/widget && claude",
+    );
+  });
+
+  it("filters command select by jira type on Jira pages", async () => {
+    installChrome(
+      {
+        [COMMANDS_KEY]: [
+          { id: "1", name: "ForJira", prompt: "P1", types: ["jira"] },
+          { id: "2", name: "ForPR", prompt: "P2", types: ["pr"] },
+        ],
+        [JIRA_REPO_MAP_KEY]: { PROJ: "r" },
+      },
+      {
+        url: "https://acme.atlassian.net/browse/PROJ-1",
+        title: "[PROJ-1] T - Jira",
+      },
+    );
+    await runPopupInit();
+
+    const select = document.getElementById(
+      "command-select",
+    ) as HTMLSelectElement;
+    const labels = Array.from(select.options).map((o) => o.textContent);
+    expect(labels).toEqual(["ForJira"]);
   });
 
   it("adds a new command via the settings form and persists it", async () => {
